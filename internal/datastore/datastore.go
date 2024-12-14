@@ -12,7 +12,8 @@ import (
 // Store is an interface that defines the methods
 // for retrieving and storing images.
 type Store interface {
-	GetImage(id uuid.UUID) (*image.RGBA, error)
+	GetRGBA(id uuid.UUID) (*image.RGBA, error)
+	GetImage(id uuid.UUID) (io.Reader, error)
 	PutImage(id uuid.UUID, reader io.Reader) error
 }
 

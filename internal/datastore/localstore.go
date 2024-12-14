@@ -35,15 +35,11 @@ func imageToRGBA(src image.Image) *image.RGBA {
 	return dst
 }
 
-func (s *LocalStore) GetImage(id uuid.UUID) (*image.RGBA, error) {
-	path := fmt.Sprintf("%s/%s", s.Directory, id.String())
-	s.logger.Printf("Getting file: %s", path)
-	f, err := os.Open(path)
+func (s *LocalStore) GetRGBA(id uuid.UUID) (*image.RGBA, error) {
+	f, err := s.GetImage(id)
 	if err != nil {
-		s.logger.Printf("Failed to open file: %s", id.String())
 		return nil, err
 	}
-	defer f.Close()
 	im, _, err := image.Decode(f)
 	if err != nil {
 		s.logger.Printf("Failed to decode image: %s", err)
@@ -53,6 +49,17 @@ func (s *LocalStore) GetImage(id uuid.UUID) (*image.RGBA, error) {
 	rgba := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
 	draw.Draw(rgba, rgba.Bounds(), im, b.Min, draw.Src)
 	return rgba, nil
+}
+
+func (s *LocalStore) GetImage(id uuid.UUID) (io.Reader, error) {
+	path := fmt.Sprintf("%s/%s", s.Directory, id.String())
+	s.logger.Printf("Getting file: %s", path)
+	f, err := os.Open(path)
+	if err != nil {
+		s.logger.Printf("Failed to open file: %s", id.String())
+		return nil, err
+	}
+	return f, nil
 }
 
 func (s *LocalStore) PutImage(id uuid.UUID, reader io.Reader) error {

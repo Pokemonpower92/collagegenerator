@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"io"
 	"log"
 	"net/http"
 
@@ -25,6 +26,19 @@ func (ish *ImageHandler) GetImages(w http.ResponseWriter, _ *http.Request) error
 }
 
 func (ish *ImageHandler) GetImageById(w http.ResponseWriter, r *http.Request) error {
+	ish.l.Printf("Getting Image by ID")
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		return err
+	}
+	image, err := ish.store.GetImage(id)
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(w, image)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
