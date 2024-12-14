@@ -46,7 +46,7 @@ clean:
 
 
 build: collageapi
-start: vet build stack_deploy 
+start: vet build stack_deploy start_collageapi 
 all: vet build
 
 .PHONY: build fmt vet clean all

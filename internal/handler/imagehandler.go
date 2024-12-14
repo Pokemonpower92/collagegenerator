@@ -39,6 +39,7 @@ func (ish *ImageHandler) GetImageById(w http.ResponseWriter, r *http.Request) er
 	if err != nil {
 		return err
 	}
+	ish.l.Printf("Got image: %s", id)
 	return nil
 }
 
