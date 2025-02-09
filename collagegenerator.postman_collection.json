@@ -1,0 +1,347 @@
+{
+	"info": {
+		"_postman_id": "463cc8fb-c314-4fa5-bd3f-d4666df7586e",
+		"name": "collagegenerator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15432334"
+	},
+	"item": [
+		{
+			"name": "image_sets",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/imagesets",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"imagesets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/imagesets/{{IMAGE-SET-ID}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"imagesets",
+								"{{IMAGE-SET-ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"TestSet{{$randomUUID}}\",\n    \"description\": \"A test image set\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/imagesets",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"imagesets"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "images",
+			"item": [
+				{
+					"name": "Store",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "/home/mimikyu/images/walls/cloud.jpeg"
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/images",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/images/{{IMAGE-ID}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"images",
+								"{{IMAGE-ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "target_image",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/targets",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"targets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/targets/{{TARGET-IMAGE-ID}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"targets",
+								"{{TARGET-IMAGE-ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"TestTarget{{$randomUUID}}\",\n    \"description\": \"A test tareget image\",\n    \"targetimage_id\": \"{{IMAGE-ID}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/targets",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"targets"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "average_color",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/averagecolors",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"averagecolors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/averagecolors/{{AVERAGE-COLOR-ID}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"averagecolors",
+								"{{AVERAGE-COLOR-ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"imageset_id\": \"{{IMAGE-SET-ID}}\",\n    \"averagecolor_id\": \"{{IMAGE-ID}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/averagecolors",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"averagecolors"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "colllage",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/collages",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"collages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/collages/{{COLLAGE-ID}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"collages",
+								"{{COLLAGE-ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"TestCollage{{$randomUUID}}\",\n    \"description\": \"A test collage\",\n    \"image_set_id\": \"{{IMAGE-SET-ID}}\",\n    \"target_image_id\": \"{{TARGET-IMAGE-ID}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/collages",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"collages"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
