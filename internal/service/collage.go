@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"log"
 	"sync"
 	"time"
 
@@ -14,16 +13,8 @@ import (
 	sqlc "github.com/pokemonpower92/collagegenerator/internal/sqlc/generated"
 )
 
-func CreateCollage(collage *sqlc.Collage) {
-	serviceContext, cancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer cancel()
-	service := newCollageService(collage, serviceContext)
-	service.determineImagePlacements()
-	service.placeImagesInCollage()
-}
-
 type collageService struct {
-	l             *log.Logger
+	l             *ServiceLogger
 	collage       *sqlc.Collage
 	averageColors []*sqlc.AverageColor
 	store         datastore.Store
@@ -46,11 +37,19 @@ func getAverageColors(
 	return averageColors, nil
 }
 
+func CreateCollage(collage *sqlc.Collage) {
+	serviceContext, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+	service := newCollageService(collage, serviceContext)
+	service.determineImagePlacements()
+	service.placeImagesInCollage()
+}
+
 func newCollageService(
 	collage *sqlc.Collage,
 	serviceContext context.Context,
 ) *collageService {
-	l := log.New(log.Writer(), "", log.LstdFlags)
+	l := NewServiceLogger("collage")
 	averageColors, err := getAverageColors(collage.ImageSetID, serviceContext)
 	if err != nil {
 		l.Fatalf("Failed to get image set images")
@@ -69,7 +68,7 @@ func newCollageService(
 // Find the image set image that best fits the given
 // section of the target image
 func (cs *collageService) findImageForSection(section int) {
-	cs.l.Printf("Finding image for section: %d.\n", section)
+	cs.l.Printf("Finding image for section: %d\n", section)
 	// Calculate the average color of the section.
 }
 
@@ -82,7 +81,7 @@ func (cs *collageService) calculateSections() int {
 
 // Find out what image set image goes where in the collage.
 func (cs *collageService) determineImagePlacements() {
-	cs.l.Printf("Finding image placements.\n")
+	cs.l.Printf("Finding image placements\n")
 	var wg sync.WaitGroup
 	numSections := cs.calculateSections()
 	for section := 0; section < numSections; section++ {
