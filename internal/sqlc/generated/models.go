@@ -90,6 +90,16 @@ type CollageImage struct {
 	UpdatedAt pgtype.Date `json:"updated_at"`
 }
 
+type CollageSection struct {
+	DbID      int32       `json:"db_id"`
+	ID        uuid.UUID   `json:"id"`
+	ImageID   uuid.UUID   `json:"image_id"`
+	CollageID uuid.UUID   `json:"collage_id"`
+	Section   int32       `json:"section"`
+	CreatedAt pgtype.Date `json:"created_at"`
+	UpdatedAt pgtype.Date `json:"updated_at"`
+}
+
 type ImageSet struct {
 	DbID        int32       `json:"db_id"`
 	ID          uuid.UUID   `json:"id"`
