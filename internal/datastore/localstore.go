@@ -36,7 +36,7 @@ func imageToRGBA(src image.Image) *image.RGBA {
 }
 
 func (s *LocalStore) GetRGBA(id uuid.UUID) (*image.RGBA, error) {
-	f, err := s.GetImage(id)
+	f, err := s.GetFile(id)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (s *LocalStore) GetRGBA(id uuid.UUID) (*image.RGBA, error) {
 	return rgba, nil
 }
 
-func (s *LocalStore) GetImage(id uuid.UUID) (io.Reader, error) {
+func (s *LocalStore) GetFile(id uuid.UUID) (io.Reader, error) {
 	path := fmt.Sprintf("%s/%s", s.Directory, id.String())
 	s.logger.Printf("Getting file: %s", path)
 	f, err := os.Open(path)
@@ -62,7 +62,7 @@ func (s *LocalStore) GetImage(id uuid.UUID) (io.Reader, error) {
 	return f, nil
 }
 
-func (s *LocalStore) PutImage(id uuid.UUID, reader io.Reader) error {
+func (s *LocalStore) PutFile(id uuid.UUID, reader io.Reader) error {
 	dst, err := os.Create(filepath.Join(s.Directory, id.String()))
 	if err != nil {
 		return err
@@ -72,6 +72,6 @@ func (s *LocalStore) PutImage(id uuid.UUID, reader io.Reader) error {
 	if _, err := io.Copy(dst, reader); err != nil {
 		return err
 	}
-	s.logger.Printf("Successfully stored image.")
+	s.logger.Printf("Successfully stored file.")
 	return nil
 }

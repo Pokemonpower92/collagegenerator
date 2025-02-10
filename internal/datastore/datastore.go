@@ -13,8 +13,8 @@ import (
 // for retrieving and storing images.
 type Store interface {
 	GetRGBA(id uuid.UUID) (*image.RGBA, error)
-	GetImage(id uuid.UUID) (io.Reader, error)
-	PutImage(id uuid.UUID, reader io.Reader) error
+	GetFile(id uuid.UUID) (io.Reader, error)
+	PutFile(id uuid.UUID, reader io.Reader) error
 }
 
 type StoreFunc = func() Store

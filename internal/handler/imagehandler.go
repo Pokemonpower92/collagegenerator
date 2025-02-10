@@ -31,7 +31,7 @@ func (ish *ImageHandler) GetImageById(w http.ResponseWriter, r *http.Request) er
 	if err != nil {
 		return err
 	}
-	image, err := ish.store.GetImage(id)
+	image, err := ish.store.GetFile(id)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (ish *ImageHandler) GetImageById(w http.ResponseWriter, r *http.Request) er
 func (ish *ImageHandler) StoreImage(w http.ResponseWriter, r *http.Request) error {
 	ish.l.Printf("Storing image")
 	id := uuid.New()
-	if err := ish.store.PutImage(id, r.Body); err != nil {
+	if err := ish.store.PutFile(id, r.Body); err != nil {
 		return err
 	}
 	ish.l.Printf("Stored image")

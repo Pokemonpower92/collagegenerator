@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"image/draw"
 	"io"
+	"math"
 )
 
 func ImageFileToRGBA(reader io.Reader) (*image.RGBA, error) {
@@ -37,4 +38,28 @@ func CalculateAverageColor(image *image.RGBA) color.RGBA {
 		B: uint8(b / totalPixels),
 		A: uint8(a / totalPixels),
 	}
+}
+
+func ColorDistance(c1, c2 color.RGBA) float64 {
+	// Convert to float64 for calculations
+	rf1, gf1, bf1 := float64(c1.R), float64(c1.G), float64(c1.B)
+	rf2, gf2, bf2 := float64(c2.R), float64(c2.G), float64(c2.B)
+
+	rMean := (rf1 + rf2) / 2.0
+
+	// Calculate differences
+	r := rf1 - rf2
+	g := gf1 - gf2
+	b := bf1 - bf2
+
+	// Weights based on human perception
+	rWeight := 2.0 + rMean/256.0
+	gWeight := 4.0
+	bWeight := 2.0 + (255.0-rMean)/256.0
+
+	return math.Sqrt(
+		rWeight*r*r +
+			gWeight*g*g +
+			bWeight*b*b,
+	)
 }

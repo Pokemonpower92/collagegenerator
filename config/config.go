@@ -75,3 +75,23 @@ func NewPostgresConfig() *DBConfig {
 		DBName:   os.Getenv("POSTGRES_DB"),
 	}
 }
+
+type ResolutionConfig struct {
+	CollageWidth  int
+	CollageHeight int
+	SectionWidth  int
+	SectionHeight int
+	XSections     int
+	YSections     int
+}
+
+func NewResolutionConfig() *ResolutionConfig {
+	return &ResolutionConfig{
+		CollageWidth:  8000,
+		CollageHeight: 6000,
+		SectionWidth:  80,
+		SectionHeight: 60,
+		XSections:     100,
+		YSections:     100,
+	}
+}
