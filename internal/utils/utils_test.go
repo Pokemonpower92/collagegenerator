@@ -70,7 +70,7 @@ func TestImageFileToRGBA(t *testing.T) {
 		{
 			name: "Success - Red PNG",
 			input: func() io.Reader {
-				f, _ := os.Open("../../resources/testimages/RED.png")
+				f, _ := os.Open("../../testimages/RED.png")
 				return f
 			},
 			wantErr:   false,

@@ -51,7 +51,7 @@ func createRGBImages(logger *log.Logger) error {
 			image.Point{},
 			draw.Src,
 		)
-		fullPath := filepath.Join("./resources/testimages", file.fileName)
+		fullPath := filepath.Join("./testimages", file.fileName)
 		f, err := os.Create(fullPath)
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
