@@ -1,5 +1,3 @@
-# Makefile for a Go project with two applications: app1 and app2
-
 # Go related variables
 GO_CMD=go
 GO_BUILD=$(GO_CMD) build
@@ -17,6 +15,9 @@ run_collageapi:
 
 run_migration: vet
 	$(GO_CMD) run ./cmd/migrate/main.go
+
+run_seed: vet
+	$(GO_CMD) run ./cmd/seed/main.go
 
 stack_deploy: 
 	$(LOCALSTACK_CMD) -b
@@ -46,7 +47,7 @@ clean:
 
 
 build: collageapi
-start: vet build stack_deploy start_collageapi 
+start: vet build stack_deploy run_migration run_seed start_collageapi 
 all: vet build
 
 .PHONY: build fmt vet clean all

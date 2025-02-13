@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	log.Printf("Migrating database...")
+	log.Printf("Seeding database...")
 	config.LoadEnvironmentVariables()
 	postgresConfig := config.NewPostgresConfig()
 	connString := repository.GetConnectionString(postgresConfig)
@@ -18,9 +18,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if err := database.RunMigration(config); err != nil {
+	if err := database.Seed(config); err != nil {
 		panic(err)
 	} else {
-		log.Printf("Migration succeeded.")
+		log.Printf("Seeding succeeded.")
 	}
 }
