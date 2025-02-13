@@ -67,10 +67,10 @@ func TestCalculateAverageColor(t *testing.T) {
 
 func TestImageFileToRGBA(t *testing.T) {
 	testCases := []struct {
-		name      string
-		input     func() io.Reader
-		wantErr   bool
-		wantColor *color.RGBA // Use pointer to handle nil case for errors
+		name     string
+		input    func() io.Reader
+		wantErr  bool
+		expected *color.RGBA // Use pointer to handle nil case for errors
 	}{
 		{
 			name: "Success - Red PNG",
@@ -78,8 +78,8 @@ func TestImageFileToRGBA(t *testing.T) {
 				f, _ := os.Open("../../testimages/RED.png")
 				return f
 			},
-			wantErr:   false,
-			wantColor: &color.RGBA{R: 255, G: 0, B: 0, A: 255},
+			wantErr:  false,
+			expected: &color.RGBA{R: 255, G: 0, B: 0, A: 255},
 		},
 		{
 			name: "Invalid Image Data",
@@ -115,13 +115,13 @@ func TestImageFileToRGBA(t *testing.T) {
 			if test.wantErr {
 				return
 			}
-			if test.wantColor != nil {
+			if test.expected != nil {
 				result := CalculateAverageColor(rgba)
-				if result != *test.wantColor {
+				if result != *test.expected {
 					t.Errorf(
 						"Test %s failed: expected = %v, got %v",
 						test.name,
-						test.wantColor,
+						test.expected,
 						result,
 					)
 				}

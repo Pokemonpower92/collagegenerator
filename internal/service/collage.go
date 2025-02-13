@@ -24,14 +24,6 @@ type ACRepoExtender interface {
 	GetByImageSetId(id uuid.UUID) ([]*sqlc.AverageColor, error)
 }
 
-func (cs *collageService) getAverageColors() ([]*sqlc.AverageColor, error) {
-	averageColors, err := cs.acRepo.GetByImageSetId(cs.collage.ImageSetID)
-	if err != nil {
-		return nil, errors.New("Failed to get average colors")
-	}
-	return averageColors, nil
-}
-
 func CreateCollage(collage *sqlc.Collage) {
 	serviceContext, cancel := context.WithTimeout(
 		context.Background(),
@@ -46,7 +38,8 @@ func CreateCollage(collage *sqlc.Collage) {
 	if err != nil {
 		panic("Couldn't create repo")
 	}
-	service := newCollageService(collage, acRepo)
+	store := datastore.NewStore()
+	service := newCollageService(collage, acRepo, store)
 	service.determineImagePlacements()
 }
 
@@ -63,6 +56,7 @@ type collageService struct {
 func newCollageService(
 	collage *sqlc.Collage,
 	acRepo ACRepoExtender,
+	store datastore.Store,
 ) *collageService {
 	logger := NewServiceLogger("collage")
 	resolution := config.NewResolutionConfig()
@@ -70,7 +64,6 @@ func newCollageService(
 		[]uuid.UUID,
 		resolution.XSections*resolution.YSections,
 	)
-	store := datastore.NewStore()
 	return &collageService{
 		logger:     logger,
 		numThreads: 10,
@@ -82,15 +75,24 @@ func newCollageService(
 	}
 }
 
+func (cs *collageService) getAverageColors() ([]*sqlc.AverageColor, error) {
+	averageColors, err := cs.acRepo.GetByImageSetId(cs.collage.ImageSetID)
+	if err != nil {
+		return nil, errors.New("Failed to get average colors")
+	}
+	return averageColors, nil
+}
+
 // Get the local average color value of the collage's
 // target image by scaling it down to X_SECTIONSxY_SECTIONS
-func (cs *collageService) getSectionAverageColors() []*color.RGBA {
+func (cs *collageService) getSectionAverageColors() ([]*color.RGBA, error) {
 	targetImageReader, err := cs.store.GetFile(cs.collage.TargetImageID)
 	if err != nil {
-		cs.logger.Fatalf(
+		cs.logger.Printf(
 			"Failed to load target image: %s\n",
 			cs.collage.TargetImageID,
 		)
+		return nil, err
 	}
 	targetImage, _, err := image.Decode(targetImageReader)
 	if err != nil {
@@ -98,6 +100,7 @@ func (cs *collageService) getSectionAverageColors() []*color.RGBA {
 			"Failed to decode target image: %s\n",
 			cs.collage.TargetImageID,
 		)
+		return nil, err
 	}
 	scaledImage := resize.Resize(
 		uint(cs.resolution.XSections),
@@ -120,7 +123,7 @@ func (cs *collageService) getSectionAverageColors() []*color.RGBA {
 			averageColors[y*bounds.Dx()+x] = color
 		}
 	}
-	return averageColors
+	return averageColors, nil
 }
 
 // Find the image set image that best fits the given
@@ -162,13 +165,21 @@ func (cs *collageService) determineImagePlacements() {
 	cs.logger.Printf("Finding image placements\n")
 	totalSections := cs.resolution.XSections * cs.resolution.YSections
 	chunkSize := totalSections / cs.numThreads
-	sectionAverages := cs.getSectionAverageColors()
+	sectionAverages, err := cs.getSectionAverageColors()
+	if err != nil {
+		cs.logger.Printf(
+			"Error getting section averages\n: %s",
+			err,
+		)
+		return
+	}
 	imageSetAverages, err := cs.getAverageColors()
 	if err != nil {
 		cs.logger.Printf(
 			"Error getting image set average colors\n: %s",
 			err,
 		)
+		return
 	}
 	var wg sync.WaitGroup
 	for thread := 0; thread < cs.numThreads; thread++ {
@@ -197,6 +208,7 @@ func (cs *collageService) createMetaDataFile() {
 	err := json.NewEncoder(&buf).Encode(metaData)
 	if err != nil {
 		cs.logger.Printf("Error encoding metadata file: %s\n", err)
+		return
 	}
 	err = cs.store.PutFile(cs.collage.ID, &buf)
 	if err != nil {
