@@ -10,8 +10,19 @@ import (
 	"testing"
 )
 
-func TestCalculateAverageColor(t *testing.T) {
+func createTestRGBAImage(fill color.RGBA) *image.RGBA {
 	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	draw.Draw(
+		img,
+		img.Bounds(),
+		&image.Uniform{fill},
+		image.Point{},
+		draw.Src,
+	)
+	return img
+}
+
+func TestCalculateAverageColor(t *testing.T) {
 	testCases := []struct {
 		name      string
 		fillColor color.RGBA
@@ -40,13 +51,7 @@ func TestCalculateAverageColor(t *testing.T) {
 	}
 	for _, test := range testCases {
 		t.Run(test.name, func(t *testing.T) {
-			draw.Draw(
-				img,
-				img.Bounds(),
-				&image.Uniform{test.fillColor},
-				image.Point{},
-				draw.Src,
-			)
+			img := createTestRGBAImage(test.fillColor)
 			result := CalculateAverageColor(img)
 			if result != test.expected {
 				t.Errorf(
@@ -91,30 +96,63 @@ func TestImageFileToRGBA(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			reader := tc.input()
+	for _, test := range testCases {
+		t.Run(test.name, func(t *testing.T) {
+			reader := test.input()
 			if f, ok := reader.(*os.File); ok {
 				defer f.Close()
 			}
 			rgba, err := ImageFileToRGBA(reader)
-			if (err != nil) != tc.wantErr {
+			if (err != nil) != test.wantErr {
 				t.Errorf(
-					"ImageFileToRGBA() error = %v, wantErr %v",
+					"Test %s failed: expected = %v, got %v",
+					test.name,
+					test.wantErr,
 					err,
-					tc.wantErr,
 				)
 				return
 			}
-			if tc.wantErr {
+			if test.wantErr {
 				return
 			}
-			if tc.wantColor != nil {
+			if test.wantColor != nil {
 				result := CalculateAverageColor(rgba)
-				if result != *tc.wantColor {
-					t.Errorf("ImageFileToRGBA() got color = %v, want %v", result, *tc.wantColor)
+				if result != *test.wantColor {
+					t.Errorf(
+						"Test %s failed: expected = %v, got %v",
+						test.name,
+						test.wantColor,
+						result,
+					)
 				}
 			}
 		})
+	}
+}
+
+func TestColorDifference(t *testing.T) {
+	testCases := []struct {
+		name        string
+		firstColor  color.RGBA
+		secondColor color.RGBA
+		expected    float64
+	}{
+		{
+			name:        "Same color",
+			firstColor:  color.RGBA{R: 255, G: 0, B: 0, A: 255},
+			secondColor: color.RGBA{R: 255, G: 0, B: 0, A: 255},
+			expected:    0.0,
+		},
+	}
+	for _, test := range testCases {
+		result := ColorDistance(test.firstColor, test.secondColor)
+		if result != test.expected {
+			t.Errorf(
+				"Test %s failed: expected = %v, got %v",
+				test.name,
+				test.expected,
+				result,
+			)
+		}
 	}
 }

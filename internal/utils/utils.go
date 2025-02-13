@@ -43,13 +43,11 @@ func CalculateAverageColor(image *image.RGBA) color.RGBA {
 }
 
 func ColorDistance(c1, c2 color.RGBA) float64 {
-	// Convert to float64 for calculations
 	rf1, gf1, bf1 := float64(c1.R), float64(c1.G), float64(c1.B)
 	rf2, gf2, bf2 := float64(c2.R), float64(c2.G), float64(c2.B)
 
 	rMean := (rf1 + rf2) / 2.0
 
-	// Calculate differences
 	r := rf1 - rf2
 	g := gf1 - gf2
 	b := bf1 - bf2
