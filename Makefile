@@ -15,8 +15,8 @@ start_collageapi:
 run_collageapi:
 	$(GO_CMD) run ./cmd/collageapi/main.go
 
-migration: vet
-	$(GO_CMD) run ./scripts/migrate/migrate_db.go
+run_migration: vet
+	$(GO_CMD) run ./cmd/migrate/main.go
 
 stack_deploy: 
 	$(LOCALSTACK_CMD) -b

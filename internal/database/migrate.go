@@ -1,8 +1,7 @@
-package main
+package database
 
 import (
 	"context"
-	"log"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
@@ -11,7 +10,7 @@ import (
 	migrate "github.com/rubenv/sql-migrate"
 )
 
-func runMigration() error {
+func RunMigration() error {
 	config.LoadEnvironmentVariables()
 	ctx := context.Background()
 	postgresConfig := config.NewPostgresConfig()
@@ -46,13 +45,4 @@ func runMigration() error {
 	}
 
 	return nil
-}
-
-func main() {
-	log.Printf("Migrating database...")
-	if err := runMigration(); err != nil {
-		panic(err)
-	} else {
-		log.Printf("Migration succeeded.")
-	}
 }
