@@ -68,7 +68,7 @@ func (s *LocalStore) PutFile(id uuid.UUID, reader io.Reader) error {
 		return err
 	}
 	defer dst.Close()
-	s.logger.Printf("Created image destination: %s", dst.Name())
+	s.logger.Printf("Created file destination: %s", dst.Name())
 	if _, err := io.Copy(dst, reader); err != nil {
 		return err
 	}
