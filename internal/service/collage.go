@@ -126,8 +126,10 @@ func (cs *collageService) getSectionAverageColors() ([]*color.RGBA, error) {
 	return averageColors, nil
 }
 
-// Find the image set image that best fits the given
-// section of the target image
+// findImagesForSections finds the image set image that best fits the given
+// chunk of sections of the target image by comparing the local color of the
+// section to the average color of images in the image set.
+// It processes a chunk of sections in parallel.
 func (cs *collageService) findImagesForSections(
 	startSection int,
 	numSections int,
@@ -160,7 +162,12 @@ func (cs *collageService) findImagesForSections(
 	}
 }
 
-// Find out what image set image goes where in the collage.
+// determineImagePlacements processes the target image in batches by:
+//  1. Scaling the target image to a configured resolution where the number of pixels corresponds
+//     to the final collage resolution
+//  2. Retrieves the average colors of each image in the image set.
+//  3. Concurrently finds the best fit image by average color for each section in batches.
+//  4. Encodes the placements in a metadata file stored by collage id for deferred creation.
 func (cs *collageService) determineImagePlacements() {
 	cs.logger.Printf("Finding image placements\n")
 	totalSections := cs.resolution.XSections * cs.resolution.YSections
@@ -199,6 +206,10 @@ func (cs *collageService) determineImagePlacements() {
 	cs.createMetaDataFile()
 }
 
+// createMetaDataFile generates a file containing the
+// image placements for the collage.
+// The meta data file will be stored in the configured
+// store location under the name of the collage.
 func (cs *collageService) createMetaDataFile() {
 	var buf bytes.Buffer
 	metaData := CollageMetaData{

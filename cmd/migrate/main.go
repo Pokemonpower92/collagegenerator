@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(1000 * time.Millisecond)
 	log.Printf("Migrating database...")
 	config.LoadEnvironmentVariables()
 	postgresConfig := config.NewPostgresConfig()

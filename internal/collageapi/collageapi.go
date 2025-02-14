@@ -27,7 +27,7 @@ func Start() {
 	r.RegisterRoute("GET /imagesets", imageSetHandler.GetImageSets)
 	r.RegisterRoute("GET /imagesets/{id}", imageSetHandler.GetImageSetById)
 
-	tiRepo, err := repository.NewTagrgetImageRepository(c, ctx)
+	tiRepo, err := repository.NewTargetImageRepository(c, ctx)
 	if err != nil {
 		panic(err)
 	}

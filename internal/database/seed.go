@@ -102,7 +102,7 @@ func Seed() {
 			panic(err)
 		}
 	}
-	tiRepo, err := repository.NewTagrgetImageRepository(c, ctx)
+	tiRepo, err := repository.NewTargetImageRepository(c, ctx)
 	if err != nil {
 		panic(err)
 	}

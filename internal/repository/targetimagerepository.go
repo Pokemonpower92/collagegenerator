@@ -12,20 +12,20 @@ import (
 	sqlc "github.com/pokemonpower92/collagegenerator/internal/sqlc/generated"
 )
 
-type TargeImageRepository struct {
+type TargetImageRepository struct {
 	client *pgxpool.Pool
 	logger *log.Logger
 	ctx    context.Context
 	q      *sqlc.Queries
 }
 
-func NewTagrgetImageRepository(
+func NewTargetImageRepository(
 	pgConfig *config.DBConfig,
 	ctx context.Context,
-) (*TargeImageRepository, error) {
+) (*TargetImageRepository, error) {
 	logger := log.New(
 		log.Writer(),
-		"TargeImageRepository: ",
+		"TargetImageRepository: ",
 		log.LstdFlags,
 	)
 	connString := GetConnectionString(pgConfig)
@@ -37,7 +37,7 @@ func NewTagrgetImageRepository(
 		return nil, err
 	}
 	q := sqlc.New(client)
-	return &TargeImageRepository{
+	return &TargetImageRepository{
 		client: client,
 		logger: logger,
 		ctx:    ctx,
@@ -45,11 +45,11 @@ func NewTagrgetImageRepository(
 	}, nil
 }
 
-func (tir *TargeImageRepository) Close() {
+func (tir *TargetImageRepository) Close() {
 	tir.client.Close()
 }
 
-func (tir *TargeImageRepository) Get(id uuid.UUID) (*sqlc.TargetImage, error) {
+func (tir *TargetImageRepository) Get(id uuid.UUID) (*sqlc.TargetImage, error) {
 	tir.logger.Printf("Get not implemented")
 	targetImage, err := tir.q.GetTargetImage(tir.ctx, id)
 	if err != nil {
@@ -58,7 +58,7 @@ func (tir *TargeImageRepository) Get(id uuid.UUID) (*sqlc.TargetImage, error) {
 	return targetImage, nil
 }
 
-func (tir *TargeImageRepository) GetAll() ([]*sqlc.TargetImage, error) {
+func (tir *TargetImageRepository) GetAll() ([]*sqlc.TargetImage, error) {
 	targetImages, err := tir.q.ListTargetImages(tir.ctx)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (tir *TargeImageRepository) GetAll() ([]*sqlc.TargetImage, error) {
 	return targetImages, nil
 }
 
-func (tir *TargeImageRepository) Create(
+func (tir *TargetImageRepository) Create(
 	req sqlc.CreateTargetImageParams,
 ) (*sqlc.TargetImage, error) {
 	targetImage, err := tir.q.CreateTargetImage(tir.ctx, req)
@@ -76,7 +76,7 @@ func (tir *TargeImageRepository) Create(
 	return targetImage, nil
 }
 
-func (tir *TargeImageRepository) Update(
+func (tir *TargetImageRepository) Update(
 	id uuid.UUID,
 	req sqlc.CreateTargetImageParams,
 ) (*sqlc.TargetImage, error) {
@@ -84,7 +84,7 @@ func (tir *TargeImageRepository) Update(
 	return nil, errors.New("Update not implemented for target images")
 }
 
-func (tir *TargeImageRepository) Delete(id uuid.UUID) error {
+func (tir *TargetImageRepository) Delete(id uuid.UUID) error {
 	tir.logger.Printf("Delete not implemented")
 	return errors.New("Delete not implemented for target images")
 }
