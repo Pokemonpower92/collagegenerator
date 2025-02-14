@@ -10,23 +10,23 @@ import (
 	"github.com/pokemonpower92/collagegenerator/internal/response"
 )
 
-type ImageHandler struct {
+type FileHandler struct {
 	l     *log.Logger
 	store datastore.Store
 }
 
-func NewImageHandler() *ImageHandler {
+func NewFileHandler() *FileHandler {
 	l := log.New(log.Writer(), "", log.LstdFlags)
 	store := datastore.NewStore()
-	return &ImageHandler{l: l, store: store}
+	return &FileHandler{l: l, store: store}
 }
 
-func (ish *ImageHandler) GetImages(w http.ResponseWriter, _ *http.Request) error {
+func (ish *FileHandler) GetFiles(w http.ResponseWriter, _ *http.Request) error {
 	return nil
 }
 
-func (ish *ImageHandler) GetImageById(w http.ResponseWriter, r *http.Request) error {
-	ish.l.Printf("Getting Image by ID")
+func (ish *FileHandler) GetFileById(w http.ResponseWriter, r *http.Request) error {
+	ish.l.Printf("Getting File by ID")
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		return err
@@ -39,17 +39,17 @@ func (ish *ImageHandler) GetImageById(w http.ResponseWriter, r *http.Request) er
 	if err != nil {
 		return err
 	}
-	ish.l.Printf("Got image: %s", id)
+	ish.l.Printf("Got File: %s", id)
 	return nil
 }
 
-func (ish *ImageHandler) StoreImage(w http.ResponseWriter, r *http.Request) error {
-	ish.l.Printf("Storing image")
+func (ish *FileHandler) StoreFile(w http.ResponseWriter, r *http.Request) error {
+	ish.l.Printf("Storing File")
 	id := uuid.New()
 	if err := ish.store.PutFile(id, r.Body); err != nil {
 		return err
 	}
-	ish.l.Printf("Stored image")
+	ish.l.Printf("Stored File")
 	response.WriteResponse(w, http.StatusCreated, id)
 	return nil
 }

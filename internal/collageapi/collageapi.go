@@ -57,9 +57,9 @@ func Start() {
 	r.RegisterRoute("GET /collages", collageHandler.GetCollages)
 	r.RegisterRoute("GET /collages/{id}", collageHandler.GetCollageById)
 
-	imageHandler := handler.NewImageHandler()
-	r.RegisterRoute("POST /images", imageHandler.StoreImage)
-	r.RegisterRoute("GET /images/{id}", imageHandler.GetImageById)
+	fileHandler := handler.NewFileHandler()
+	r.RegisterRoute("POST /files", fileHandler.StoreFile)
+	r.RegisterRoute("GET /files/{id}", fileHandler.GetFileById)
 
 	s := server.NewCollageServer(r)
 	s.Start()

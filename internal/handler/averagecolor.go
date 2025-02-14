@@ -65,15 +65,18 @@ func (ach *AverageColorHandler) CreateAverageColor(w http.ResponseWriter, r *htt
 		return err
 	}
 	image, err := ach.store.GetRGBA(req.AverageColorID)
-	averages := utils.CalculateAverageColor(image)
+	if err != nil {
+		return err
+	}
+	average := utils.CalculateAverageColor(image)
 	averageColor, err := ach.repo.Create(sqlc.CreateAverageColorParams{
 		ID:         req.AverageColorID,
 		ImagesetID: req.ImagesetID,
 		FileName:   req.AverageColorID.String(),
-		R:          int32(averages.R),
-		G:          int32(averages.G),
-		B:          int32(averages.B),
-		A:          int32(averages.A),
+		R:          int32(average.R),
+		G:          int32(average.G),
+		B:          int32(average.B),
+		A:          int32(average.A),
 	})
 	if err != nil {
 		return err

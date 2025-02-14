@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/pokemonpower92/collagegenerator/config"
@@ -10,6 +11,7 @@ import (
 )
 
 func main() {
+	time.Sleep(100 * time.Millisecond)
 	log.Printf("Migrating database...")
 	config.LoadEnvironmentVariables()
 	postgresConfig := config.NewPostgresConfig()

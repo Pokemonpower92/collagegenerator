@@ -76,7 +76,7 @@
 			]
 		},
 		{
-			"name": "images",
+			"name": "files",
 			"item": [
 				{
 					"name": "Store",
@@ -90,13 +90,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8000/images",
+							"raw": "localhost:8000/files",
 							"host": [
 								"localhost"
 							],
 							"port": "8000",
 							"path": [
-								"images"
+								"files"
 							]
 						}
 					},
@@ -108,14 +108,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8000/images/{{IMAGE-ID}}",
+							"raw": "localhost:8000/files/{{FILE-ID}}",
 							"host": [
 								"localhost"
 							],
 							"port": "8000",
 							"path": [
-								"images",
-								"{{IMAGE-ID}}"
+								"files",
+								"{{FILE-ID}}"
 							]
 						}
 					},
@@ -176,7 +176,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"TestTarget{{$randomUUID}}\",\n    \"description\": \"A test tareget image\",\n    \"targetimage_id\": \"{{IMAGE-ID}}\"\n}",
+							"raw": "{\n    \"name\": \"TestTarget{{$randomUUID}}\",\n    \"description\": \"A test tareget image\",\n    \"targetimage_id\": \"{{FILE-ID}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -252,7 +252,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"imageset_id\": \"{{IMAGE-SET-ID}}\",\n    \"averagecolor_id\": \"{{IMAGE-ID}}\"\n}",
+							"raw": "{\n    \"imageset_id\": \"{{IMAGE-SET-ID}}\",\n    \"averagecolor_id\": \"{{FILE-ID}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

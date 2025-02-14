@@ -17,7 +17,7 @@ INSERT INTO collages (
 ) VALUES (
   uuid_generate_v4(), $1, $2, $3, $4, NOW(), NOW() 
 )
-RETURNING db_id, id, name, description, image_set_id, target_image_id, created_at, updated_at, status
+RETURNING db_id, id, name, description, image_set_id, target_image_id, created_at, updated_at
 `
 
 type CreateCollageParams struct {
@@ -44,13 +44,12 @@ func (q *Queries) CreateCollage(ctx context.Context, arg CreateCollageParams) (*
 		&i.TargetImageID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Status,
 	)
 	return &i, err
 }
 
 const getCollage = `-- name: GetCollage :one
-SELECT db_id, id, name, description, image_set_id, target_image_id, created_at, updated_at, status FROM collages
+SELECT db_id, id, name, description, image_set_id, target_image_id, created_at, updated_at FROM collages
 WHERE id = $1 LIMIT 1
 `
 
@@ -66,13 +65,12 @@ func (q *Queries) GetCollage(ctx context.Context, id uuid.UUID) (*Collage, error
 		&i.TargetImageID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Status,
 	)
 	return &i, err
 }
 
 const listCollages = `-- name: ListCollages :many
-SELECT db_id, id, name, description, image_set_id, target_image_id, created_at, updated_at, status FROM collages
+SELECT db_id, id, name, description, image_set_id, target_image_id, created_at, updated_at FROM collages
 ORDER BY name
 `
 
@@ -94,7 +92,6 @@ func (q *Queries) ListCollages(ctx context.Context) ([]*Collage, error) {
 			&i.TargetImageID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Status,
 		); err != nil {
 			return nil, err
 		}

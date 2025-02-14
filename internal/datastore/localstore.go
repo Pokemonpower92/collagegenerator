@@ -53,10 +53,10 @@ func (s *LocalStore) GetRGBA(id uuid.UUID) (*image.RGBA, error) {
 
 func (s *LocalStore) GetFile(id uuid.UUID) (io.Reader, error) {
 	path := fmt.Sprintf("%s/%s", s.Directory, id.String())
-	s.logger.Printf("Getting file: %s", path)
+	s.logger.Printf("Getting File: %s", path)
 	f, err := os.Open(path)
 	if err != nil {
-		s.logger.Printf("Failed to open file: %s", id.String())
+		s.logger.Printf("Failed to open File: %s", id.String())
 		return nil, err
 	}
 	return f, nil
@@ -68,10 +68,10 @@ func (s *LocalStore) PutFile(id uuid.UUID, reader io.Reader) error {
 		return err
 	}
 	defer dst.Close()
-	s.logger.Printf("Created file destination: %s", dst.Name())
+	s.logger.Printf("Created File destination: %s", dst.Name())
 	if _, err := io.Copy(dst, reader); err != nil {
 		return err
 	}
-	s.logger.Printf("Successfully stored file.")
+	s.logger.Printf("Successfully stored File")
 	return nil
 }

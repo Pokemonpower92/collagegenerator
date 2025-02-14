@@ -13,7 +13,11 @@ postgres_image="postgres:13"
 images="$postgres_image"
 
 # Containers
-db='collage_db'
+db='collage'
+
+# Volumes
+collage='db'
+volumes="$collage"
 
 containers="$db"
 
@@ -38,6 +42,7 @@ clean ()
     docker rm $containers
     docker image rm $images
     docker network rm $network
+    docker volume rm $volumes
 }
 
 if [[ $build_flag == 'true' ]]; then
