@@ -47,5 +47,5 @@ type (
 	TIRepoStub RepositoryStub[sqlc.TargetImage, sqlc.CreateTargetImageParams]
 	ACRepoStub = ResourceRepositoryStub[sqlc.AverageColor, sqlc.CreateAverageColorParams]
 	CRepoStub  RepositoryStub[sqlc.Collage, sqlc.CreateCollageParams]
-	CIRepoStub RepositoryStub[sqlc.CollageImage, uuid.UUID]
+	CIRepoStub ResourceRepositoryStub[sqlc.CollageImage, uuid.UUID]
 )

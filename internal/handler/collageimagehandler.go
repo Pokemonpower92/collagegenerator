@@ -40,18 +40,21 @@ func (cih *CollageImageHandler) GetCollageImages(w http.ResponseWriter, _ *http.
 	return nil
 }
 
-func (cih *CollageImageHandler) GetCollageImageById(w http.ResponseWriter, r *http.Request) error {
+func (cih *CollageImageHandler) GetCollageImageByCollageId(
+	w http.ResponseWriter,
+	r *http.Request,
+) error {
 	cih.l.Printf("Getting CollageImage by ID")
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		return err
 	}
-	collageImage, err := cih.repo.Get(id)
+	collageImage, err := cih.repo.GetByResourceId(id)
 	if err != nil {
 		return err
 	}
-	cih.l.Printf("Found CollageImage: %v", collageImage)
-	response.WriteResponse(w, http.StatusOK, collageImage)
+	cih.l.Printf("Found CollageImage: %v", collageImage[0])
+	response.WriteResponse(w, http.StatusOK, collageImage[0])
 	return nil
 }
 

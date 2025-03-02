@@ -56,12 +56,12 @@ func (cir *CollageImageRepository) Get(id uuid.UUID) (*sqlc.CollageImage, error)
 	return collageImage, nil
 }
 
-func (cir *CollageImageRepository) GetByImageSetId(id uuid.UUID) (*sqlc.CollageImage, error) {
+func (cir *CollageImageRepository) GetByResourceId(id uuid.UUID) ([]*sqlc.CollageImage, error) {
 	collageImage, err := cir.q.GetByCollageId(cir.ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	return collageImage, nil
+	return []*sqlc.CollageImage{collageImage}, nil
 }
 
 func (cir *CollageImageRepository) GetAll() ([]*sqlc.CollageImage, error) {

@@ -37,5 +37,5 @@ type (
 	TIRepo Repository[sqlc.TargetImage, sqlc.CreateTargetImageParams]
 	ACRepo ResourceRepository[sqlc.AverageColor, sqlc.CreateAverageColorParams]
 	CRepo  Repository[sqlc.Collage, sqlc.CreateCollageParams]
-	CIRepo Repository[sqlc.CollageImage, uuid.UUID]
+	CIRepo ResourceRepository[sqlc.CollageImage, uuid.UUID]
 )
