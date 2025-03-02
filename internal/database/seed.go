@@ -27,7 +27,7 @@ func Seed() {
 	}
 	defer isRepo.Close()
 	imSet, err := isRepo.Create(sqlc.CreateImageSetParams{
-		Name:        uuid.NewString(),
+		Name:        "SeedSet",
 		Description: "A seeded imageset",
 	})
 	if err != nil {
