@@ -128,9 +128,20 @@ func Seed() {
 		ImageSetID:    imSet.ID,
 		TargetImageID: targetImage.ID,
 	})
-
-	service.CreateCollageMetaData(col)
 	if err != nil {
 		panic(err)
 	}
+
+	service.CreateCollageMetaData(col)
+
+	ciRepo, err := repository.NewCollageImgageRepository(c, ctx)
+	if err != nil {
+		panic(err)
+	}
+	defer ciRepo.Close()
+	ci, err := ciRepo.Create(col.ID)
+	if err != nil {
+		panic(err)
+	}
+	service.GenerateCollage(ci)
 }
