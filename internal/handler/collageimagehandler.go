@@ -13,21 +13,29 @@ import (
 	"github.com/pokemonpower92/collagegenerator/internal/service"
 )
 
+type CollageReader = repository.CollageImageReader
+type CollageWriter = repository.CollageImageWriter
+
 type CreateCollageImageRequest struct {
 	CollageID uuid.UUID `json:"collage_id"`
 }
 
 type CollageImageHandler struct {
-	repo repository.CIRepo
+	reader CollageReader
+	writer CollageWriter
 }
 
-func NewCollageImageHandler(repo repository.CIRepo) *CollageImageHandler {
-	return &CollageImageHandler{repo: repo}
+func NewCollageImageHandler(reader CollageReader, writer CollageWriter) *CollageImageHandler {
+	return &CollageImageHandler{reader, writer}
 }
 
-func (cih *CollageImageHandler) GetCollageImages(w http.ResponseWriter, _ *http.Request, l *slog.Logger) error {
+func (cih *CollageImageHandler) GetCollageImages(
+	w http.ResponseWriter,
+	_ *http.Request,
+	l *slog.Logger,
+) error {
 	l.Info("Getting CollageImages")
-	collageImages, err := cih.repo.GetAll()
+	collageImages, err := cih.reader.GetAll()
 	if err != nil {
 		return err
 	}
@@ -46,7 +54,7 @@ func (cih *CollageImageHandler) GetCollageImageByCollageId(
 	if err != nil {
 		return err
 	}
-	collageImage, err := cih.repo.GetByResourceId(id)
+	collageImage, err := cih.reader.GetByResourceId(id)
 	if err != nil {
 		return err
 	}
@@ -55,14 +63,18 @@ func (cih *CollageImageHandler) GetCollageImageByCollageId(
 	return nil
 }
 
-func (cih *CollageImageHandler) CreateCollageImage(w http.ResponseWriter, r *http.Request, l *slog.Logger) error {
+func (cih *CollageImageHandler) CreateCollageImage(
+	w http.ResponseWriter,
+	r *http.Request,
+	l *slog.Logger,
+) error {
 	l.Info("Creating CollageImage")
 	var req CreateCollageImageRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		return err
 	}
-	collageImage, err := cih.repo.Create(req.CollageID)
+	collageImage, err := cih.writer.Create(req.CollageID)
 	if err != nil {
 		return err
 	}

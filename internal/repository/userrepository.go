@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"log"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,20 +11,24 @@ import (
 
 type UserRepository struct {
 	client *pgxpool.Pool
-	logger *log.Logger
 	ctx    context.Context
 	q      *sqlc.Queries
+}
+
+type UserReader interface {
+	Get(id uuid.UUID) (*sqlc.User, error)
+	GetByResourceId(id uuid.UUID) ([]*sqlc.User, error)
+	GetAll() ([]*sqlc.User, error)
+}
+
+type UserWriter interface {
+	Create(sqlc.CreateUserParams) (*sqlc.User, error)
 }
 
 func NewUserRepository(
 	postgresConfig *config.DBConfig,
 	ctx context.Context,
 ) (*UserRepository, error) {
-	logger := log.New(
-		log.Writer(),
-		"UserRepository: ",
-		log.LstdFlags,
-	)
 	connString := GetConnectionString(postgresConfig)
 	client, err := pgxpool.New(
 		context.Background(),
@@ -38,7 +40,6 @@ func NewUserRepository(
 	q := sqlc.New(client)
 	return &UserRepository{
 		client: client,
-		logger: logger,
 		ctx:    ctx,
 		q:      q,
 	}, nil
@@ -80,17 +81,4 @@ func (ur *UserRepository) Create(
 		return nil, err
 	}
 	return imageset, nil
-}
-
-func (ur *UserRepository) Update(
-	id uuid.UUID,
-	req uuid.UUID,
-) (*sqlc.User, error) {
-	ur.logger.Printf("Update not implemented for User")
-	return nil, errors.New("Not implemented")
-}
-
-func (ur *UserRepository) Delete(id uuid.UUID) error {
-	ur.logger.Printf("Delete not implemented for User")
-	return errors.New("Not implemented")
 }

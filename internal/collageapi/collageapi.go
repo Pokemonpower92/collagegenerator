@@ -42,7 +42,7 @@ func Start() {
 		panic(err)
 	}
 	defer acRepo.Close()
-	averageColorHandler := handler.NewAverageColorHandler(acRepo)
+	averageColorHandler := handler.NewAverageColorHandler(acRepo, acRepo)
 	r.RegisterRoute("POST /averagecolors", averageColorHandler.CreateAverageColor)
 	r.RegisterRoute("GET /averagecolors", averageColorHandler.GetAverageColors)
 	r.RegisterRoute("GET /averagecolors/{id}", averageColorHandler.GetAverageColorById)
@@ -63,7 +63,7 @@ func Start() {
 		panic(err)
 	}
 	defer ciRepo.Close()
-	collageImageHandler := handler.NewCollageImageHandler(ciRepo)
+	collageImageHandler := handler.NewCollageImageHandler(ciRepo, ciRepo)
 	r.RegisterRoute("POST /collageimages", collageImageHandler.CreateCollageImage)
 	r.RegisterRoute("GET /collageimages", collageImageHandler.GetCollageImages)
 	r.RegisterRoute("GET /collageimages/{id}", collageImageHandler.GetCollageImageByCollageId)

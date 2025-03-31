@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"log"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,20 +11,24 @@ import (
 
 type CollageImageRepository struct {
 	client *pgxpool.Pool
-	logger *log.Logger
 	ctx    context.Context
 	q      *sqlc.Queries
+}
+
+type CollageImageReader interface {
+	Get(id uuid.UUID) (*sqlc.CollageImage, error)
+	GetByResourceId(id uuid.UUID) ([]*sqlc.CollageImage, error)
+	GetAll() ([]*sqlc.CollageImage, error)
+}
+
+type CollageImageWriter interface {
+	Create(req uuid.UUID) (*sqlc.CollageImage, error)
 }
 
 func NewCollageImgageRepository(
 	postgresConfig *config.DBConfig,
 	ctx context.Context,
 ) (*CollageImageRepository, error) {
-	logger := log.New(
-		log.Writer(),
-		"CollageImageRepository: ",
-		log.LstdFlags,
-	)
 	connString := GetConnectionString(postgresConfig)
 	client, err := pgxpool.New(
 		context.Background(),
@@ -38,7 +40,6 @@ func NewCollageImgageRepository(
 	q := sqlc.New(client)
 	return &CollageImageRepository{
 		client: client,
-		logger: logger,
 		ctx:    ctx,
 		q:      q,
 	}, nil
@@ -80,17 +81,4 @@ func (cir *CollageImageRepository) Create(
 		return nil, err
 	}
 	return imageset, nil
-}
-
-func (cir *CollageImageRepository) Update(
-	id uuid.UUID,
-	req uuid.UUID,
-) (*sqlc.CollageImage, error) {
-	cir.logger.Printf("Update not implemented for CollageImage")
-	return nil, errors.New("Not implemented")
-}
-
-func (cir *CollageImageRepository) Delete(id uuid.UUID) error {
-	cir.logger.Printf("Delete not implemented for CollageImage")
-	return errors.New("Not implemented")
 }

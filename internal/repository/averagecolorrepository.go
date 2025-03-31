@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"log"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,20 +11,24 @@ import (
 
 type AverageColorRepository struct {
 	client *pgxpool.Pool
-	logger *log.Logger
 	ctx    context.Context
 	q      *sqlc.Queries
+}
+
+type AverageColorReader interface {
+	Get(id uuid.UUID) (*sqlc.AverageColor, error)
+	GetByResourceId(id uuid.UUID) ([]*sqlc.AverageColor, error)
+	GetAll() ([]*sqlc.AverageColor, error)
+}
+
+type AverageColorWriter interface {
+	Create(sqlc.CreateAverageColorParams) (*sqlc.AverageColor, error)
 }
 
 func NewAverageColorRepository(
 	postgresConfig *config.DBConfig,
 	ctx context.Context,
 ) (*AverageColorRepository, error) {
-	logger := log.New(
-		log.Writer(),
-		"AverageColorRepository: ",
-		log.LstdFlags,
-	)
 	connString := GetConnectionString(postgresConfig)
 	client, err := pgxpool.New(
 		context.Background(),
@@ -38,7 +40,6 @@ func NewAverageColorRepository(
 	q := sqlc.New(client)
 	return &AverageColorRepository{
 		client: client,
-		logger: logger,
 		ctx:    ctx,
 		q:      q,
 	}, nil
@@ -80,17 +81,4 @@ func (acr *AverageColorRepository) Create(
 		return nil, err
 	}
 	return averageColor, nil
-}
-
-func (acr *AverageColorRepository) Update(
-	id uuid.UUID,
-	req sqlc.CreateAverageColorParams,
-) (*sqlc.AverageColor, error) {
-	acr.logger.Printf("Update not implemented for AverageColor")
-	return nil, errors.New("Not implemented")
-}
-
-func (acr *AverageColorRepository) Delete(id uuid.UUID) error {
-	acr.logger.Printf("Delete not implemented for AverageColor")
-	return errors.New("Not implemented")
 }

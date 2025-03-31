@@ -20,17 +20,24 @@ type CreateAverageColorRequest struct {
 	AverageColorID uuid.UUID `json:"averagecolor_id"`
 }
 
+type AverageColorReader = repository.AverageColorReader
+type AverageColorWriter = repository.AverageColorWriter
+
 type AverageColorHandler struct {
-	repo repository.ACRepo
+	reader AverageColorReader
+	writer AverageColorWriter
 }
 
-func NewAverageColorHandler(repo repository.ACRepo) *AverageColorHandler {
-	return &AverageColorHandler{repo: repo}
+func NewAverageColorHandler(
+	reader AverageColorReader,
+	writer AverageColorWriter,
+) *AverageColorHandler {
+	return &AverageColorHandler{reader, writer}
 }
 
 func (ach *AverageColorHandler) GetAverageColors(w http.ResponseWriter, _ *http.Request, l *slog.Logger) error {
 	l.Info("Getting AverageColors")
-	averageColors, err := ach.repo.GetAll()
+	averageColors, err := ach.reader.GetAll()
 	if err != nil {
 		return err
 	}
@@ -45,7 +52,7 @@ func (ach *AverageColorHandler) GetAverageColorById(w http.ResponseWriter, r *ht
 	if err != nil {
 		return err
 	}
-	averageColor, err := ach.repo.Get(id)
+	averageColor, err := ach.reader.Get(id)
 	if err != nil {
 		return err
 	}
@@ -60,7 +67,7 @@ func (ach *AverageColorHandler) GetByImageSetId(w http.ResponseWriter, r *http.R
 	if err != nil {
 		return err
 	}
-	averageColors, err := ach.repo.GetByResourceId(id)
+	averageColors, err := ach.reader.GetByResourceId(id)
 	if err != nil {
 		return err
 	}
@@ -82,7 +89,7 @@ func (ach *AverageColorHandler) CreateAverageColor(w http.ResponseWriter, r *htt
 		return err
 	}
 	average := imageprocessing.CalculateAverageColor(image)
-	averageColor, err := ach.repo.Create(sqlc.CreateAverageColorParams{
+	averageColor, err := ach.writer.Create(sqlc.CreateAverageColorParams{
 		ID:         req.AverageColorID,
 		ImagesetID: req.ImagesetID,
 		FileName:   req.AverageColorID.String(),

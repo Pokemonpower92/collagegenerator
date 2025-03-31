@@ -55,7 +55,7 @@ type collageMetaDataService struct {
 	logger     *slog.Logger
 	numThreads int
 	collage    *sqlc.Collage
-	acRepo     repository.ACRepo
+	acRepo     repository.AverageColorReader
 	resolution *config.ResolutionConfig
 	sectionMap []uuid.UUID
 	store      datastore.Store
@@ -63,7 +63,7 @@ type collageMetaDataService struct {
 
 func newCollageMetaDataService(
 	collage *sqlc.Collage,
-	acRepo repository.ACRepo,
+	acRepo repository.AverageColorReader,
 	store datastore.Store,
 	logger *slog.Logger,
 ) *collageMetaDataService {

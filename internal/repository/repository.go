@@ -21,13 +21,6 @@ type Repository[O, R any] interface {
 	Delete(id uuid.UUID) error
 }
 
-// ResourceRepository is an extension of Repository
-// that allows one to define the GetByResourceId method.
-type ResourceRepository[O, R, Q any] interface {
-	Repository[O, R]
-	GetByResourceId(resourceId Q) ([]*O, error)
-}
-
 // Connect to the database defined in the given config
 func GetConnectionString(config *config.DBConfig) string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
@@ -44,13 +37,4 @@ type (
 	ISRepo Repository[sqlc.ImageSet, sqlc.CreateImageSetParams]
 	TIRepo Repository[sqlc.TargetImage, sqlc.CreateTargetImageParams]
 	CRepo  Repository[sqlc.Collage, sqlc.CreateCollageParams]
-)
-
-// Resource repositories
-// format is:
-// TypeName ResourceRepository[resourceType, createResourceParams, resourceIdType]
-type (
-	ACRepo ResourceRepository[sqlc.AverageColor, sqlc.CreateAverageColorParams, uuid.UUID]
-	CIRepo ResourceRepository[sqlc.CollageImage, uuid.UUID, uuid.UUID]
-	URepo  ResourceRepository[sqlc.User, sqlc.CreateUserParams, string]
 )
