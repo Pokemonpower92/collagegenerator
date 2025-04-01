@@ -22,7 +22,7 @@ func Start() {
 		panic(err)
 	}
 	defer isRepo.Close()
-	imageSetHandler := handler.NewImageSetHandler(isRepo)
+	imageSetHandler := handler.NewImageSetHandler(isRepo, isRepo)
 	r.RegisterRoute("POST /imagesets", imageSetHandler.CreateImageSet)
 	r.RegisterRoute("GET /imagesets", imageSetHandler.GetImageSets)
 	r.RegisterRoute("GET /imagesets/{id}", imageSetHandler.GetImageSetById)
@@ -32,7 +32,7 @@ func Start() {
 		panic(err)
 	}
 	defer tiRepo.Close()
-	targetImageHandler := handler.NewTargetImageHandler(tiRepo)
+	targetImageHandler := handler.NewTargetImageHandler(tiRepo, tiRepo)
 	r.RegisterRoute("POST /targets", targetImageHandler.CreateTargetImage)
 	r.RegisterRoute("GET /targets", targetImageHandler.GetTargetImages)
 	r.RegisterRoute("GET /targets/{id}", targetImageHandler.GetTargetImageById)
@@ -53,7 +53,7 @@ func Start() {
 		panic(err)
 	}
 	defer cRepo.Close()
-	collageHandler := handler.NewCollageHandler(cRepo)
+	collageHandler := handler.NewCollageHandler(cRepo, cRepo)
 	r.RegisterRoute("POST /collages", collageHandler.CreateCollage)
 	r.RegisterRoute("GET /collages", collageHandler.GetCollages)
 	r.RegisterRoute("GET /collages/{id}", collageHandler.GetCollageById)

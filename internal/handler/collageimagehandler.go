@@ -13,19 +13,19 @@ import (
 	"github.com/pokemonpower92/collagegenerator/internal/service"
 )
 
-type CollageReader = repository.CollageImageReader
-type CollageWriter = repository.CollageImageWriter
+type CollageImageReader = repository.CollageImageReader
+type CollageImageWriter = repository.CollageImageWriter
 
 type CreateCollageImageRequest struct {
 	CollageID uuid.UUID `json:"collage_id"`
 }
 
 type CollageImageHandler struct {
-	reader CollageReader
-	writer CollageWriter
+	reader CollageImageReader
+	writer CollageImageWriter
 }
 
-func NewCollageImageHandler(reader CollageReader, writer CollageWriter) *CollageImageHandler {
+func NewCollageImageHandler(reader CollageImageReader, writer CollageImageWriter) *CollageImageHandler {
 	return &CollageImageHandler{reader, writer}
 }
 

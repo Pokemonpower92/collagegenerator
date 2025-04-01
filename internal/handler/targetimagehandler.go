@@ -19,17 +19,21 @@ type CreateTargetImageRequest struct {
 	TargetImageId uuid.UUID `json:"targetimage_id"`
 }
 
+type TargetImageReader = repository.TargetImageReader
+type TargetImageWriter = repository.TargetImageWriter
+
 type TargetImageHandler struct {
-	repo repository.TIRepo
+	reader TargetImageReader
+	writer TargetImageWriter
 }
 
-func NewTargetImageHandler(repo repository.TIRepo) *TargetImageHandler {
-	return &TargetImageHandler{repo: repo}
+func NewTargetImageHandler(reader TargetImageReader, writer TargetImageWriter) *TargetImageHandler {
+	return &TargetImageHandler{reader, writer}
 }
 
 func (tih *TargetImageHandler) GetTargetImages(w http.ResponseWriter, _ *http.Request, l *slog.Logger) error {
 	l.Info("Getting TargetImages")
-	targetImages, err := tih.repo.GetAll()
+	targetImages, err := tih.reader.GetAll()
 	if err != nil {
 		return err
 	}
@@ -44,7 +48,7 @@ func (tih *TargetImageHandler) GetTargetImageById(w http.ResponseWriter, r *http
 	if err != nil {
 		return err
 	}
-	targetImage, err := tih.repo.Get(id)
+	targetImage, err := tih.reader.Get(id)
 	if err != nil {
 		return err
 	}
@@ -60,7 +64,7 @@ func (tih *TargetImageHandler) CreateTargetImage(w http.ResponseWriter, r *http.
 	if err != nil {
 		return err
 	}
-	targetImage, err := tih.repo.Create(sqlc.CreateTargetImageParams{
+	targetImage, err := tih.writer.Create(sqlc.CreateTargetImageParams{
 		ID:          req.TargetImageId,
 		Name:        req.Name,
 		Description: req.Description,

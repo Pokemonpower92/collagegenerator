@@ -14,17 +14,21 @@ import (
 	sqlc "github.com/pokemonpower92/collagegenerator/internal/sqlc/generated"
 )
 
+type CollageReader = repository.CollageReader
+type CollageWriter = repository.CollageWriter
+
 type CollageHandler struct {
-	repo repository.CRepo
+	reader CollageReader
+	writer CollageWriter
 }
 
-func NewCollageHandler(repo repository.CRepo) *CollageHandler {
-	return &CollageHandler{repo: repo}
+func NewCollageHandler(reader CollageReader, writer CollageWriter) *CollageHandler {
+	return &CollageHandler{reader, writer}
 }
 
 func (ch *CollageHandler) GetCollages(w http.ResponseWriter, _ *http.Request, l *slog.Logger) error {
 	l.Info("Getting Collages")
-	collages, err := ch.repo.GetAll()
+	collages, err := ch.reader.GetAll()
 	if err != nil {
 		return err
 	}
@@ -40,7 +44,7 @@ func (ch *CollageHandler) GetCollageById(w http.ResponseWriter, r *http.Request,
 		l.Error("Error parsing id from path")
 		return err
 	}
-	collage, err := ch.repo.Get(id)
+	collage, err := ch.reader.Get(id)
 	if err != nil {
 		return err
 	}
@@ -57,7 +61,7 @@ func (ch *CollageHandler) CreateCollage(w http.ResponseWriter, r *http.Request, 
 		l.Error(fmt.Sprintf("Error parsing request: %s", err))
 		return err
 	}
-	collage, err := ch.repo.Create(req)
+	collage, err := ch.writer.Create(req)
 	if err != nil {
 		l.Error(fmt.Sprintf("Error creating collage: %s", err))
 		return err

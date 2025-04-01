@@ -13,17 +13,21 @@ import (
 	sqlc "github.com/pokemonpower92/collagegenerator/internal/sqlc/generated"
 )
 
+type ImageSetReader = repository.ImageSetReader
+type ImageSetWriter = repository.ImageSetWriter
+
 type ImageSetHandler struct {
-	repo repository.ISRepo
+	reader ImageSetReader
+	writer ImageSetWriter
 }
 
-func NewImageSetHandler(repo repository.ISRepo) *ImageSetHandler {
-	return &ImageSetHandler{repo: repo}
+func NewImageSetHandler(reader ImageSetReader, writer ImageSetWriter) *ImageSetHandler {
+	return &ImageSetHandler{reader, writer}
 }
 
 func (ish *ImageSetHandler) GetImageSets(w http.ResponseWriter, _ *http.Request, l *slog.Logger) error {
 	l.Info("Getting ImageSets")
-	imageSets, err := ish.repo.GetAll()
+	imageSets, err := ish.reader.GetAll()
 	if err != nil {
 		return err
 	}
@@ -38,7 +42,7 @@ func (ish *ImageSetHandler) GetImageSetById(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		return err
 	}
-	imageSet, err := ish.repo.Get(id)
+	imageSet, err := ish.reader.Get(id)
 	if err != nil {
 		return err
 	}
@@ -54,7 +58,7 @@ func (ish *ImageSetHandler) CreateImageSet(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		return err
 	}
-	imageSet, err := ish.repo.Create(req)
+	imageSet, err := ish.writer.Create(req)
 	if err != nil {
 		return err
 	}

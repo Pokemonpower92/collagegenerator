@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"log"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -14,20 +12,23 @@ import (
 
 type CollageRepository struct {
 	client *pgxpool.Pool
-	logger *log.Logger
 	ctx    context.Context
 	q      *sqlc.Queries
+}
+
+type CollageReader interface {
+	Get(id uuid.UUID) (*sqlc.Collage, error)
+	GetAll() ([]*sqlc.Collage, error)
+}
+
+type CollageWriter interface {
+	Create(sqlc.CreateCollageParams) (*sqlc.Collage, error)
 }
 
 func NewCollageRepository(
 	postgresConfig *config.DBConfig,
 	ctx context.Context,
 ) (*CollageRepository, error) {
-	logger := log.New(
-		log.Writer(),
-		"CollageRepository: ",
-		log.LstdFlags,
-	)
 	connString := GetConnectionString(postgresConfig)
 	client, err := pgxpool.New(
 		context.Background(),
@@ -39,7 +40,6 @@ func NewCollageRepository(
 	q := sqlc.New(client)
 	return &CollageRepository{
 		client: client,
-		logger: logger,
 		ctx:    ctx,
 		q:      q,
 	}, nil
@@ -71,17 +71,4 @@ func (cr *CollageRepository) Create(req sqlc.CreateCollageParams) (*sqlc.Collage
 		return nil, err
 	}
 	return collage, nil
-}
-
-func (cr *CollageRepository) Update(
-	id uuid.UUID,
-	req sqlc.CreateCollageParams,
-) (*sqlc.Collage, error) {
-	cr.logger.Printf("Update not implemented for collage")
-	return nil, errors.New("Not implemented")
-}
-
-func (cr *CollageRepository) Delete(id uuid.UUID) error {
-	cr.logger.Printf("Delete not implemented for collage")
-	return errors.New("Not implemented")
 }

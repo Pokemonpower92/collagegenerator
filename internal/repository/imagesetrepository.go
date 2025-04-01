@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"log"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -14,20 +12,23 @@ import (
 
 type ImageSetRepository struct {
 	client *pgxpool.Pool
-	logger *log.Logger
 	ctx    context.Context
 	q      *sqlc.Queries
+}
+
+type ImageSetReader interface {
+	Get(id uuid.UUID) (*sqlc.ImageSet, error)
+	GetAll() ([]*sqlc.ImageSet, error)
+}
+
+type ImageSetWriter interface {
+	Create(sqlc.CreateImageSetParams) (*sqlc.ImageSet, error)
 }
 
 func NewImageSetRepository(
 	postgresConfig *config.DBConfig,
 	ctx context.Context,
 ) (*ImageSetRepository, error) {
-	logger := log.New(
-		log.Writer(),
-		"ImageSetRepository: ",
-		log.LstdFlags,
-	)
 	connString := GetConnectionString(postgresConfig)
 	client, err := pgxpool.New(
 		context.Background(),
@@ -39,7 +40,6 @@ func NewImageSetRepository(
 	q := sqlc.New(client)
 	return &ImageSetRepository{
 		client: client,
-		logger: logger,
 		ctx:    ctx,
 		q:      q,
 	}, nil
@@ -71,17 +71,4 @@ func (isr *ImageSetRepository) Create(req sqlc.CreateImageSetParams) (*sqlc.Imag
 		return nil, err
 	}
 	return imageset, nil
-}
-
-func (isr *ImageSetRepository) Update(
-	id uuid.UUID,
-	req sqlc.CreateImageSetParams,
-) (*sqlc.ImageSet, error) {
-	isr.logger.Printf("Update not implemented for image set")
-	return nil, errors.New("Not implemented")
-}
-
-func (isr *ImageSetRepository) Delete(id uuid.UUID) error {
-	isr.logger.Printf("Delete not implemented for image set")
-	return errors.New("Not implemented")
 }
