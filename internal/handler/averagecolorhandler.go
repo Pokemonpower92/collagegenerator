@@ -39,7 +39,6 @@ func (ach *AverageColorHandler) GetAverageColors(w http.ResponseWriter, _ *http.
 	}
 	l.Info(fmt.Sprintf("Found %d AverageColors", len(averageColors)))
 	response.WriteSuccessResponse(w, 200, averageColors)
-	return
 }
 
 func (ach *AverageColorHandler) GetAverageColorById(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
@@ -52,13 +51,16 @@ func (ach *AverageColorHandler) GetAverageColorById(w http.ResponseWriter, r *ht
 	}
 	averageColor, err := ach.repo.Get(id)
 	if err != nil {
-		l.Error("Error getting AverageColor", "error", err)
+		l.Error(
+			"Error getting AverageColor",
+			"error", err,
+			"id", id,
+		)
 		response.WriteErrorResponse(w, 404, err)
 		return
 	}
-	l.Info(fmt.Sprintf("Found AverageColor: %v", averageColor))
+	l.Info("Found AverageColor", "average_color", averageColor)
 	response.WriteSuccessResponse(w, 200, averageColor)
-	return
 }
 
 func (ach *AverageColorHandler) GetByImageSetId(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
@@ -74,14 +76,13 @@ func (ach *AverageColorHandler) GetByImageSetId(w http.ResponseWriter, r *http.R
 		l.Error(
 			"Error getting AverageColor by ImageSet id",
 			"error", err,
-			"image-set-id", id,
+			"image_set_id", id,
 		)
 		response.WriteErrorResponse(w, 404, err)
 		return
 	}
 	l.Info(fmt.Sprintf("Found %d AverageColors", len(averageColors)))
 	response.WriteSuccessResponse(w, 200, averageColors)
-	return
 }
 
 func (ach *AverageColorHandler) CreateAverageColor(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
@@ -95,6 +96,12 @@ func (ach *AverageColorHandler) CreateAverageColor(w http.ResponseWriter, r *htt
 			"request", r.Body,
 		)
 		response.WriteErrorResponse(w, 422, err)
+		return
+	}
+	existing, err := ach.repo.Get(req.AverageColorID)
+	if err == nil && existing != nil {
+		l.Info("AverageColor already exists", "id", req.AverageColorID)
+		response.WriteSuccessResponse(w, 200, existing)
 		return
 	}
 	fileReader := client.NewFileReader("http://filestore:8081/files/", l)
@@ -125,7 +132,6 @@ func (ach *AverageColorHandler) CreateAverageColor(w http.ResponseWriter, r *htt
 		response.WriteErrorResponse(w, 500, err)
 		return
 	}
-	l.Info(fmt.Sprintf("Created AverageColor with id: %s", averageColor.ID))
-	response.WriteSuccessResponse(w, 200, averageColor)
-	return
+	l.Info("Created AverageColor", "id", averageColor.ID)
+	response.WriteSuccessResponse(w, 201, averageColor)
 }

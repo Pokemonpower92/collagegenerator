@@ -9,7 +9,7 @@ import (
 	"image"
 	"image/color"
 	"log/slog"
-	"sort"
+	"math"
 	"sync"
 	"time"
 
@@ -130,40 +130,40 @@ func (cs *collageMetaDataService) getSectionAverageColors() ([]color.Color, erro
 // chunk of sections of the target image by comparing the local color of the
 // section to the average color of images in the image set.
 // It processes a chunk of sections in parallel.
-// Pre-compute color distances
-type ColorDistance struct {
-	ID       uuid.UUID
-	Distance float64
-}
-
 func (cs *collageMetaDataService) findImagesForSections(
 	startSection int,
 	numSections int,
 	sectionAverages *[]color.Color,
 	imageSetAverageColors *[]*sqlc.AverageColor,
 ) {
-	distances := make([][]ColorDistance, len(*sectionAverages))
-	for i, sectionAvg := range *sectionAverages {
-		distances[i] = make([]ColorDistance, len(*imageSetAverageColors))
-		for j, avgColor := range *imageSetAverageColors {
+	cs.logger.Info(fmt.Sprintf(
+		"Finding image for sections: %d-%d\n",
+		startSection,
+		startSection+numSections-1,
+	))
+	for section := startSection; section < startSection+numSections; section++ {
+		var bestFit uuid.UUID
+		bestDistance := math.MaxFloat64
+		sectionAverage := (*sectionAverages)[section]
+		for _, averageColor := range *imageSetAverageColors {
+			// Scale up 8-bit to 16-bit
 			dbColor := imageprocessing.RGB16{
-				R: uint16(avgColor.R) * 257,
-				G: uint16(avgColor.G) * 257,
-				B: uint16(avgColor.B) * 257,
+				R: uint16(averageColor.R) * 257, // Scale up to full 16-bit range
+				G: uint16(averageColor.G) * 257,
+				B: uint16(averageColor.B) * 257,
 			}
-			distances[i][j] = ColorDistance{
-				ID:       avgColor.ID,
-				Distance: imageprocessing.CalculateColorDistance(dbColor, sectionAvg),
+
+			distance := imageprocessing.CalculateColorDistance(
+				dbColor,
+				sectionAverage,
+			)
+
+			if distance < bestDistance {
+				bestFit = averageColor.ID
+				bestDistance = distance
 			}
 		}
-		// Sort once per section
-		sort.Slice(distances[i], func(a, b int) bool {
-			return distances[i][a].Distance < distances[i][b].Distance
-		})
-	}
-
-	for section := startSection; section < startSection+numSections; section++ {
-		cs.sectionMap[section] = distances[section][0].ID
+		cs.sectionMap[section] = bestFit
 	}
 }
 

@@ -26,27 +26,34 @@ func (ch *CollageHandler) GetCollages(w http.ResponseWriter, _ *http.Request, l 
 	l.Info("Getting Collages")
 	collages, err := ch.repo.GetAll()
 	if err != nil {
+		l.Error("Error getting Collages", "error", err)
+		response.WriteErrorResponse(w, 500, err)
 		return
 	}
 	l.Info(fmt.Sprintf("Found %d Collages", len(collages)))
-	response.WriteSuccessResponse(w, http.StatusOK, collages)
-	return
+	response.WriteSuccessResponse(w, 200, collages)
 }
 
 func (ch *CollageHandler) GetCollageById(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
 	l.Info("Getting Collage by ID")
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		l.Error("Error parsing id from path")
+		l.Error("Error parsing request", "error", err)
+		response.WriteErrorResponse(w, 422, err)
 		return
 	}
 	collage, err := ch.repo.Get(id)
 	if err != nil {
+		l.Error(
+			"Error getting Collage",
+			"error", err,
+			"id", id,
+		)
+		response.WriteErrorResponse(w, 404, err)
 		return
 	}
-	l.Info(fmt.Sprintf("Found Collage: %v", collage))
-	response.WriteSuccessResponse(w, http.StatusOK, collage)
-	return
+	l.Info("Found Collage", "collage", collage)
+	response.WriteSuccessResponse(w, 200, collage)
 }
 
 func (ch *CollageHandler) CreateCollage(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
@@ -54,16 +61,21 @@ func (ch *CollageHandler) CreateCollage(w http.ResponseWriter, r *http.Request, 
 	var req sqlc.CreateCollageParams
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		l.Error(fmt.Sprintf("Error parsing request: %s", err))
+		l.Error(
+			"Error parsing request",
+			"error", err,
+			"request", r.Body,
+		)
+		response.WriteErrorResponse(w, 422, err)
 		return
 	}
 	collage, err := ch.repo.Create(req)
 	if err != nil {
-		l.Error(fmt.Sprintf("Error creating collage: %s", err))
+		l.Error("Error creating Collage", "error", err)
+		response.WriteErrorResponse(w, 500, err)
 		return
 	}
-	l.Info(fmt.Sprintf("Created Collage with id: %s", collage.ID))
+	l.Info("Created Collage", "id", collage.ID)
 	go service.CreateCollageMetaData(collage, l)
-	response.WriteSuccessResponse(w, http.StatusCreated, collage)
-	return
+	response.WriteSuccessResponse(w, 201, collage)
 }
