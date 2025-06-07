@@ -27,38 +27,38 @@ func NewTargetImageHandler(repo repository.TIRepo) *TargetImageHandler {
 	return &TargetImageHandler{repo: repo}
 }
 
-func (tih *TargetImageHandler) GetTargetImages(w http.ResponseWriter, _ *http.Request, l *slog.Logger) error {
+func (tih *TargetImageHandler) GetTargetImages(w http.ResponseWriter, _ *http.Request, l *slog.Logger) {
 	l.Info("Getting TargetImages")
 	targetImages, err := tih.repo.GetAll()
 	if err != nil {
-		return err
+		return
 	}
 	l.Info(fmt.Sprintf("Found %d target images.", len(targetImages)))
-	response.WriteResponse(w, http.StatusOK, targetImages)
-	return nil
+	response.WriteSuccessResponse(w, http.StatusOK, targetImages)
+	return
 }
 
-func (tih *TargetImageHandler) GetTargetImageById(w http.ResponseWriter, r *http.Request, l *slog.Logger) error {
+func (tih *TargetImageHandler) GetTargetImageById(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
 	l.Info("Getting TargetImage by ID")
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		return err
+		return
 	}
 	targetImage, err := tih.repo.Get(id)
 	if err != nil {
-		return err
+		return
 	}
 	l.Info(fmt.Sprintf("Found TargetImage: %v", targetImage))
-	response.WriteResponse(w, http.StatusOK, targetImage)
-	return nil
+	response.WriteSuccessResponse(w, http.StatusOK, targetImage)
+	return
 }
 
-func (tih *TargetImageHandler) CreateTargetImage(w http.ResponseWriter, r *http.Request, l *slog.Logger) error {
+func (tih *TargetImageHandler) CreateTargetImage(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
 	l.Info("Creating targetimage")
 	var req CreateTargetImageRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		return err
+		return
 	}
 	targetImage, err := tih.repo.Create(sqlc.CreateTargetImageParams{
 		ID:          req.TargetImageId,
@@ -66,9 +66,9 @@ func (tih *TargetImageHandler) CreateTargetImage(w http.ResponseWriter, r *http.
 		Description: req.Description,
 	})
 	if err != nil {
-		return err
+		return
 	}
 	l.Info(fmt.Sprintf("Created target image with id: %s", targetImage.ID))
-	response.WriteResponse(w, http.StatusCreated, targetImage)
-	return nil
+	response.WriteSuccessResponse(w, http.StatusCreated, targetImage)
+	return
 }

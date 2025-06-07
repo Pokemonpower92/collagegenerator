@@ -11,37 +11,37 @@ import (
 	"github.com/pokemonpower92/collagegenerator/internal/store"
 )
 
-func GetFiles(w http.ResponseWriter, _ *http.Request) error {
-	return nil
+func GetFiles(w http.ResponseWriter, _ *http.Request) {
+	return
 }
 
-func GetFileById(w http.ResponseWriter, r *http.Request, l *slog.Logger) error {
+func GetFileById(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
 	l.Info("Getting File by ID")
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		return nil
+		return
 	}
 	store := store.NewStore(l)
 	image, err := store.GetFile(id)
 	if err != nil {
-		return nil
+		return
 	}
 	_, err = io.Copy(w, image)
 	if err != nil {
-		return nil
+		return
 	}
 	l.Info(fmt.Sprintf("Got File: %s", id))
-	return nil
+	return
 }
 
-func StoreFile(w http.ResponseWriter, r *http.Request, l *slog.Logger) error {
+func StoreFile(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
 	l.Info("Storing File")
 	id := uuid.New()
 	store := store.NewStore(l)
 	if err := store.PutFile(id, r.Body); err != nil {
-		return err
+		return
 	}
 	l.Info("Stored File")
-	response.WriteResponse(w, http.StatusCreated, id)
-	return nil
+	response.WriteSuccessResponse(w, http.StatusCreated, id)
+	return
 }
