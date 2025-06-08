@@ -1,7 +1,9 @@
 package main
 
-import "github.com/pokemonpower92/collagegenerator/internal/logger"
+import (
+	"github.com/pokemonpower92/collagegenerator/internal/thumbnail"
+)
 
 func main() {
-	logger.NewRequestLogger().Info("Hello from thumbnail worker!")
+	thumbnail.Start()
 }

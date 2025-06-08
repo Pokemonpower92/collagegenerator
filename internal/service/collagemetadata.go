@@ -16,10 +16,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/nfnt/resize"
 	"github.com/pokemonpower92/collagegenerator/config"
+	"github.com/pokemonpower92/collagegenerator/internal/client"
 	"github.com/pokemonpower92/collagegenerator/internal/imageprocessing"
 	"github.com/pokemonpower92/collagegenerator/internal/repository"
 	sqlc "github.com/pokemonpower92/collagegenerator/internal/sqlc/generated"
-	"github.com/pokemonpower92/collagegenerator/internal/store"
 )
 
 type CollageMetaData struct {
@@ -41,7 +41,7 @@ func CreateCollageMetaData(collage *sqlc.Collage, logger *slog.Logger) {
 	if err != nil {
 		panic("Couldn't create repo")
 	}
-	store := store.NewStore(logger)
+	store := client.NewFileClient("http://filestore:8081/files", logger.With())
 	service := newCollageMetaDataService(
 		collage,
 		acRepo,
@@ -58,13 +58,13 @@ type collageMetaDataService struct {
 	acRepo     repository.ACRepo
 	resolution *config.ResolutionConfig
 	sectionMap []uuid.UUID
-	store      store.Store
+	store      client.FileStore
 }
 
 func newCollageMetaDataService(
 	collage *sqlc.Collage,
 	acRepo repository.ACRepo,
-	store store.Store,
+	store client.FileStore,
 	logger *slog.Logger,
 ) *collageMetaDataService {
 	resolution := config.NewResolutionConfig()
@@ -230,4 +230,5 @@ func (cs *collageMetaDataService) createMetaDataFile() {
 	if err != nil {
 		cs.logger.Error(fmt.Sprintf("Error storing metadata file: %s\n", err))
 	}
+	cs.logger.Info("Stored metadata file", "collage_id", cs.collage.ID)
 }

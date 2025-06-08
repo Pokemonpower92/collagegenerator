@@ -1,7 +1,9 @@
 package main
 
-import "github.com/pokemonpower92/collagegenerator/internal/logger"
+import (
+	"github.com/pokemonpower92/collagegenerator/internal/metadata"
+)
 
 func main() {
-	logger.NewRequestLogger().Info("Hello from metadata worker!")
+	metadata.Start()
 }

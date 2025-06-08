@@ -8,9 +8,10 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/pokemonpower92/collagegenerator/config"
+	"github.com/pokemonpower92/collagegenerator/internal/client"
 	"github.com/pokemonpower92/collagegenerator/internal/repository"
 	"github.com/pokemonpower92/collagegenerator/internal/response"
-	"github.com/pokemonpower92/collagegenerator/internal/service"
 )
 
 type CreateCollageImageRequest struct {
@@ -18,11 +19,15 @@ type CreateCollageImageRequest struct {
 }
 
 type CollageImageHandler struct {
-	repo repository.CIRepo
+	repo   repository.CIRepo
+	sender client.MessageSender
 }
 
-func NewCollageImageHandler(repo repository.CIRepo) *CollageImageHandler {
-	return &CollageImageHandler{repo: repo}
+func NewCollageImageHandler(
+	repo repository.CIRepo,
+	sender client.MessageSender,
+) *CollageImageHandler {
+	return &CollageImageHandler{repo, sender}
 }
 
 func (cih *CollageImageHandler) GetCollageImages(w http.ResponseWriter, _ *http.Request, l *slog.Logger) {
@@ -89,6 +94,20 @@ func (cih *CollageImageHandler) CreateCollageImage(w http.ResponseWriter, r *htt
 		return
 	}
 	l.Info("Created CollageImage", "id", collageImage.ID)
-	go service.GenerateCollage(collageImage, l)
+	collageImageJSON, err := json.Marshal(collageImage)
+	if err != nil {
+		l.Error("Error marshaling CollageImage", "error", err)
+		response.WriteErrorResponse(w, 500, err)
+		return
+	}
+	err = cih.sender.Send(config.THUMBNAIL_QUEUE(), string(collageImageJSON), r.Context())
+	if err != nil {
+		l.Error(
+			"Error sending thumbnail job",
+			"error", err,
+		)
+		response.WriteErrorResponse(w, 500, err)
+		return
+	}
 	response.WriteSuccessResponse(w, 201, collageImage)
 }

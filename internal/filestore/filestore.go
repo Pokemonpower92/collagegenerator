@@ -11,6 +11,7 @@ func Start() {
 	r := router.NewRouter()
 
 	r.RegisterRoute("POST /files", handler.StoreFile)
+	r.RegisterRoute("POST /files/{id}", handler.PutFile)
 	r.RegisterRoute("GET /files/{id}", handler.GetFileById)
 
 	serverConfig := config.NewServerConfig()

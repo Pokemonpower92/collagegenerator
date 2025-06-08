@@ -2,8 +2,10 @@ package collageapi
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/pokemonpower92/collagegenerator/config"
+	"github.com/pokemonpower92/collagegenerator/internal/client"
 	"github.com/pokemonpower92/collagegenerator/internal/handler"
 	"github.com/pokemonpower92/collagegenerator/internal/repository"
 	"github.com/pokemonpower92/collagegenerator/internal/router"
@@ -16,6 +18,11 @@ func Start() {
 	r := router.NewRouter()
 	c := config.NewPostgresConfig()
 	ctx := context.Background()
+
+	rmqClient, err := client.NewRabbitMQClient(config.NewRMQConfig(slog.Default()))
+	if err != nil {
+		panic(err)
+	}
 
 	isRepo, err := repository.NewImageSetRepository(c, ctx)
 	if err != nil {
@@ -53,7 +60,7 @@ func Start() {
 		panic(err)
 	}
 	defer cRepo.Close()
-	collageHandler := handler.NewCollageHandler(cRepo)
+	collageHandler := handler.NewCollageHandler(cRepo, rmqClient)
 	r.RegisterRoute("POST /collages", collageHandler.CreateCollage)
 	r.RegisterRoute("GET /collages", collageHandler.GetCollages)
 	r.RegisterRoute("GET /collages/{id}", collageHandler.GetCollageById)
@@ -63,7 +70,7 @@ func Start() {
 		panic(err)
 	}
 	defer ciRepo.Close()
-	collageImageHandler := handler.NewCollageImageHandler(ciRepo)
+	collageImageHandler := handler.NewCollageImageHandler(ciRepo, rmqClient)
 	r.RegisterRoute("POST /collageimages", collageImageHandler.CreateCollageImage)
 	r.RegisterRoute("GET /collageimages", collageImageHandler.GetCollageImages)
 	r.RegisterRoute("GET /collageimages/{id}", collageImageHandler.GetByCollageId)

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log/slog"
 	"os"
 )
 
@@ -12,6 +13,33 @@ func NewLocalStoreConfig() *LocalStoreConfig {
 	return &LocalStoreConfig{
 		Directory: os.Getenv("LOCAL_STORE_DIRECTORY"),
 	}
+}
+
+// RMQConfig is the configuration for rabbitmq senders
+type RMQConfig struct {
+	Host     string
+	User     string
+	Password string
+	Port     string
+	L        *slog.Logger
+}
+
+func NewRMQConfig(L *slog.Logger) *RMQConfig {
+	return &RMQConfig{
+		Host:     os.Getenv("RABBITMQ_HOST"),
+		User:     os.Getenv("RABBITMQ_USER"),
+		Password: os.Getenv("RABBITMQ_PASSWORD"),
+		Port:     os.Getenv("RABBITMQ_PORT"),
+		L:        L,
+	}
+}
+
+func THUMBNAIL_QUEUE() string {
+	return "thumbnail_jobs"
+}
+
+func METADATA_QUEUE() string {
+	return "metadata_jobs"
 }
 
 type DBConfig struct {

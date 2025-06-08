@@ -11,29 +11,36 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	lru "github.com/hashicorp/golang-lru"
 	"github.com/nfnt/resize"
 	"github.com/pokemonpower92/collagegenerator/config"
+	"github.com/pokemonpower92/collagegenerator/internal/client"
 	sqlc "github.com/pokemonpower92/collagegenerator/internal/sqlc/generated"
-	"github.com/pokemonpower92/collagegenerator/internal/store"
 )
-
-// GenerateCollage generates the final image for a collage.
-func GenerateCollage(collageImage *sqlc.CollageImage, logger *slog.Logger) {
-	store := store.NewStore(logger)
-	generator := CollageGenerator{
-		logger:         logger,
-		store:          store,
-		collageImageId: collageImage.ID,
-		collageId:      collageImage.CollageID,
-	}
-	generator.generate()
-}
 
 type CollageGenerator struct {
 	logger         *slog.Logger
-	store          store.Store
+	store          client.FileClient
 	collageImageId uuid.UUID
 	collageId      uuid.UUID
+	imageCache     *lru.Cache
+}
+
+// GenerateCollage generates the final image for a collage.
+func GenerateCollage(collageImage *sqlc.CollageImage, logger *slog.Logger) {
+	store := client.NewFileClient("http://filestore:8081/files", logger.With())
+	cache, err := lru.New(1000)
+	if err != nil {
+		panic(err)
+	}
+	generator := CollageGenerator{
+		logger:         logger,
+		store:          *store,
+		collageImageId: collageImage.ID,
+		collageId:      collageImage.CollageID,
+		imageCache:     cache,
+	}
+	generator.generate()
 }
 
 func (cg *CollageGenerator) generate() {
@@ -80,6 +87,25 @@ func (cg *CollageGenerator) createCanvas(
 	return canvas, nil
 }
 
+func (cg *CollageGenerator) getImage(id uuid.UUID) (*image.RGBA, error) {
+	if cached, exists := cg.imageCache.Get(id); exists {
+		return cached.(*image.RGBA), nil
+	}
+	imageFile, err := cg.store.GetFile(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get image file: %w", err)
+	}
+	im, _, err := image.Decode(imageFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode image: %w", err)
+	}
+	bounds := im.Bounds()
+	rgba := image.NewRGBA(bounds)
+	draw.Draw(rgba, bounds, im, bounds.Min, draw.Src)
+	cg.imageCache.Add(id, rgba)
+	return rgba, nil
+}
+
 func (cg *CollageGenerator) fillSections(
 	start int,
 	chunkSize int,
@@ -88,18 +114,10 @@ func (cg *CollageGenerator) fillSections(
 ) {
 	for section := start; section < start+chunkSize; section++ {
 		// Load image for section.
-		fileId := metaData.SectionMap[section]
-		imageFile, err := cg.store.GetFile(fileId)
+		im, err := cg.getImage(metaData.SectionMap[section])
 		if err != nil {
 			cg.logger.Error(fmt.Sprintf(
 				"Error getting fill image: %v\n",
-				err,
-			))
-		}
-		im, _, err := image.Decode(imageFile)
-		if err != nil {
-			cg.logger.Error(fmt.Sprintf(
-				"Error decoding fill image: %v\n",
 				err,
 			))
 		}

@@ -104,7 +104,7 @@ func (ach *AverageColorHandler) CreateAverageColor(w http.ResponseWriter, r *htt
 		response.WriteSuccessResponse(w, 200, existing)
 		return
 	}
-	fileReader := client.NewFileReader("http://filestore:8081/files/", l)
+	fileReader := client.NewFileClient("http://filestore:8081/files", l)
 	fileResponse, err := fileReader.GetFile(req.AverageColorID)
 	if err != nil {
 		l.Error("Error getting file", "error", err)

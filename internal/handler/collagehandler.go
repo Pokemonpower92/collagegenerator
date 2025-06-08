@@ -8,18 +8,23 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/pokemonpower92/collagegenerator/config"
+	"github.com/pokemonpower92/collagegenerator/internal/client"
 	"github.com/pokemonpower92/collagegenerator/internal/repository"
 	"github.com/pokemonpower92/collagegenerator/internal/response"
-	"github.com/pokemonpower92/collagegenerator/internal/service"
 	sqlc "github.com/pokemonpower92/collagegenerator/internal/sqlc/generated"
 )
 
 type CollageHandler struct {
-	repo repository.CRepo
+	repo   repository.CRepo
+	sender client.MessageSender
 }
 
-func NewCollageHandler(repo repository.CRepo) *CollageHandler {
-	return &CollageHandler{repo: repo}
+func NewCollageHandler(
+	repo repository.CRepo,
+	sender client.MessageSender,
+) *CollageHandler {
+	return &CollageHandler{repo, sender}
 }
 
 func (ch *CollageHandler) GetCollages(w http.ResponseWriter, _ *http.Request, l *slog.Logger) {
@@ -76,6 +81,20 @@ func (ch *CollageHandler) CreateCollage(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	l.Info("Created Collage", "id", collage.ID)
-	go service.CreateCollageMetaData(collage, l)
+	collageJSON, err := json.Marshal(collage)
+	if err != nil {
+		l.Error("Error marshaling Collage", "error", err)
+		response.WriteErrorResponse(w, 500, err)
+		return
+	}
+	err = ch.sender.Send(config.METADATA_QUEUE(), string(collageJSON), r.Context())
+	if err != nil {
+		l.Error(
+			"Error sending metadata job",
+			"error", err,
+		)
+		response.WriteErrorResponse(w, 500, err)
+		return
+	}
 	response.WriteSuccessResponse(w, 201, collage)
 }

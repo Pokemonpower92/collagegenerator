@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pokemonpower92/collagegenerator/config"
+	"github.com/pokemonpower92/collagegenerator/internal/client"
 	"github.com/pokemonpower92/collagegenerator/internal/imageprocessing"
 	"github.com/pokemonpower92/collagegenerator/internal/repository"
 	"github.com/pokemonpower92/collagegenerator/internal/service"
@@ -83,7 +84,7 @@ func Seed() {
 
 	// Generates 100 random images for the seed image set
 	// and creates the average color records for them.
-	store := store.NewStore(slog.Default())
+	store := client.NewFileClient("http://filestore:8081/files", slog.Default())
 	for range 100 {
 		randomImage := generateRandomImage(store)
 		average := imageprocessing.CalculateAverageColor(randomImage.image)

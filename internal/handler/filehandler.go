@@ -44,6 +44,30 @@ func GetFileById(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
 	l.Info("Got File", "id", id)
 }
 
+func PutFile(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
+	l.Info("Storing File by ID")
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		l.Error(
+			"Error parsing request",
+			"error", err,
+		)
+		response.WriteErrorResponse(w, 422, err)
+		return
+	}
+	store := store.NewStore(l)
+	if err := store.PutFile(id, r.Body); err != nil {
+		l.Error(
+			"Error storing File",
+			"error", err,
+		)
+		response.WriteErrorResponse(w, 500, err)
+		return
+	}
+	l.Info("Stored File", "id", id)
+	response.WriteSuccessResponse(w, http.StatusCreated, id)
+}
+
 func StoreFile(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
 	l.Info("Storing File")
 	id := uuid.New()
